@@ -4,9 +4,11 @@ import streamlit as st
 from pydantic import BaseModel
 import streamlit_pydantic as sp
 
+# Connect to our database
 con = sqlite3.connect("todoapp.sqlite", isolation_level=None)
 cur = con.cursor()
 
+# Create the table
 cur.execute(
     """
     CREATE TABLE IF NOT EXISTS tasks (
@@ -18,11 +20,13 @@ cur.execute(
     """
 )
 
+# Define our Form
 class Task(BaseModel):
     name: str
     description: str
     is_done: bool
 
+# This function will be called when the check mark is toggled, this is called a callback function
 def toggle_is_done(is_done, row):
     cur.execute(
         """
@@ -33,6 +37,8 @@ def toggle_is_done(is_done, row):
 
 def main():
     st.title("Todo App")
+
+    # Create a Form using the streamlit-pydantic package, just pass it the Task Class
     data = sp.pydantic_form(key="task_form", model=Task)
     if data:
         cur.execute(
