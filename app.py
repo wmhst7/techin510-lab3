@@ -1,11 +1,18 @@
 import sqlite3
+import psycopg2
+import os
 
 import streamlit as st
 from pydantic import BaseModel
 import streamlit_pydantic as sp
 
 # Connect to our database
-con = sqlite3.connect("todoapp.sqlite", isolation_level=None)
+DB_CONFIG = os.getenv("DB_TYPE")
+if DB_CONFIG == 'PG':
+    PG_USER = os.getenv("PG_USER")
+    con = psycopg2.connect(f"postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}:{PG_PORT}/todoapp?connect_timeout=10&application_name=todoapp")
+else:
+    con = sqlite3.connect("todoapp.sqlite", isolation_level=None)
 cur = con.cursor()
 
 # Create the table
