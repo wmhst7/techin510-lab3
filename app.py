@@ -54,14 +54,21 @@ def edit_prompt(prompt):
 st.title("Promptbase")
 st.subheader("A simple app to store and retrieve prompts")
 
-# Search and sort bar
+# Search, sort, and filter bar
 search_query = st.text_input("Search prompts")
 sort_order = st.selectbox("Sort by", ["created_at", "title"], index=0)
+filter_favorites = st.checkbox("Show favorites only")
 search_button = st.button("Search")
 
 query = "SELECT * FROM prompts"
+if filter_favorites:
+    query += " WHERE is_favorite = true"
 if search_query:
-    query += " WHERE title LIKE %s OR prompt LIKE %s"
+    if filter_favorites:
+        query += " AND "
+    else:
+        query += " WHERE "
+    query += "title LIKE %s OR prompt LIKE %s"
     query += f" ORDER BY {sort_order} DESC"
     cur.execute(query, ('%' + search_query + '%', '%' + search_query + '%'))
 else:
@@ -77,16 +84,7 @@ if prompt:
         cur.execute("UPDATE prompts SET title = %s, prompt = %s, is_favorite = %s WHERE id = %s", 
                     (prompt.title, prompt.prompt, prompt.is_favorite, prompt.id))
     else:  # This means we are creating a new prompt
-        cur.execute("INSERT INTO prompts (title, prompt, is_favorite) VALUES (%s, %s, %s)", 
-                    (prompt.title, prompt.prompt, prompt.is_favorite))
-    con.commit()
-    st.success("Prompt added/updated successfully!")
-    st.experimental_rerun()
-
-# Additional feature: Render prompts as templates
-st.subheader("Rendered Prompt Templates")
-template_id = st.selectbox("Choose a prompt to render", [p[0] for p in prompts])
-if template_id:
-    selected_prompt = next((p for p in prompts if p[0] == template_id), None)
-    if selected_prompt:
-        st.text_area("Rendered Prompt", value=selected_prompt[2], height=300)
+        cur.execute("INSERT INTO prompts (title, prompt, is_favorite) VALUES (%s, %s, %s)",(prompt.title, prompt.prompt, prompt.is_favorite))
+con.commit()
+st.success("Prompt added/updated successfully!")
+# st.experimental_rerun()
