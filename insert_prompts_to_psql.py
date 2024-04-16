@@ -1,11 +1,12 @@
 import psycopg2
 from dotenv import load_dotenv
 import json
+import os
 
 load_dotenv()
 
 # Connect to our database
-conn = psycopg2.connect(user="mhwu", password="Wmh311@pos", host="techin510wmh.postgres.database.azure.com", port=5432, database="postgres")
+conn = psycopg2.connect(user=os.getenv("USERNAME"), password=os.getenv("PASSWORD"), host=os.getenv("HOSTNAME"), port=5432, database="postgres")
 cur = conn.cursor()
 
 
